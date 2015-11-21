@@ -65,8 +65,8 @@ add_list = ["407 Radam Ln","5701 West Slaughter Lane","1120 South Lamar Blvd.","
 "9070 Research Blvd","10817 FM 2222","317 E. 6th","1900 South First","11680A Research Road",
 "909 W Mary St","201 Brazos","4477 S. Lamar","609 Davis St","5204 FM 2222","3116 S Congress","8300 N FM 620","1109 South Lamar Blvd",
 "1400 South Congress Avenue, STE.190A","2438 West Anderson Lane","69 Rainey Street",
-"401 West 2nd Street","5425 Burnet Rd","520 w. 6th","6301 Parmer Ln","2421 Webberville Rd","13301 N. US Hwy. 183 Bldg A","507 Calles Street","1509 S. Lamar Blvd, Ste 600",
-"3601 South Congress Avenue","2900 Duval St.","3508 South Lamar Blvd","12221 Riata Trace Pkwy, Suite 100",
+"401 West 2nd Street","5425 Burnet Rd","520 w. 6th","6301 Parmer Ln","2421 Webberville Rd","13301 N 183","507 Calles Street","1509 S. Lamar Blvd",
+"3601 South Congress Avenue","2900 Duval St.","3508 South Lamar Blvd","12221 Riata Trace Pkwy",
 "704 W St. Johns Ave","9012 Research Blvd","9012 Research Blvd STE C4","4960 West Hwy. 290",
 "801 Red River Street","12164 N Mo PAC Expy","11601 Domain Dr. Ste 200","4024 S Lamar",
 "1000 East 41st Street","7211 Burnet Rd","900 N. Austin Ave. 410"]
