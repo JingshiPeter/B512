@@ -1,0 +1,105 @@
+{% extends "bootstrap.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags%}
+
+{% block head %}
+    <meta charset="utf-8">
+{% endblock %}
+
+
+{% block content %}
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.4/js.cookie.js"></script>
+
+<div class="row">
+  <div class="col-md-4">
+  <form id = "customer_form">
+	    {% csrf_token %}
+	    {{ form | crispy }}
+	</form>
+  <button id = "ajax_customerform">Submit through Ajax</button>
+	<button id = 'seemap' class="btn btn-default">customer On Map</button>
+  </div>
+  <div id = 'map' class="col-md-8" style = 'height:600px'>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-4">
+  </div>
+</div>
+    <script>
+
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 14,
+    center: {lat: 30.3223, lng: -97.7167}
+  });
+  var geocoder = new google.maps.Geocoder();
+
+  document.getElementById('seemap').addEventListener('click', function() {
+	var streetnumber = document.getElementById('id_streetnumber').value;
+	var streetname = document.getElementById('id_streetname').value;
+	var city = document.getElementById('id_city').value;
+	var state = document.getElementById('id_state').value;
+	var address = streetnumber.concat(streetname,city,state);
+    geocodeAddress(address,geocoder, map);
+  });
+}
+
+function geocodeAddress(address,geocoder, resultsMap) {
+  geocoder.geocode({'address': address}, function(results, status) {
+    if (status === google.maps.GeocoderStatus.OK) {
+      document.getElementById('ajax_customerform').disabled = false;
+      $('#id_streetnumber').val(results[0].address_components[0].short_name);
+      $('#id_streetname').val(results[0].address_components[1].short_name);
+      if(results[0].address_components.length == 9){
+        $('#id_zipcode').val(results[0].address_components[7].short_name);
+      }else{
+        $('#id_zipcode').val(results[0].address_components[6].short_name);
+      }
+      window.alert(results[0].formatted_address);
+      document.getElementById('ajax_customerform')
+      console.log(results[0]);
+      resultsMap.setCenter(results[0].geometry.location);
+      var marker = new google.maps.Marker({
+        map: resultsMap,
+        position: results[0].geometry.location
+      });
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+}
+
+    </script>
+
+    <script>
+
+    $("#ajax_customerform").prop("disabled", true);
+
+$(document).ready(function(){
+$('#ajax_customerform').on('click', function(){
+
+    $("#ajax_customerform").prop("disabled", true);
+
+    var csrftoken = Cookies.get('csrftoken');
+  $.ajax({
+    url: "/customers/",
+    headers:{ "X-CSRFToken" : csrftoken},
+    type: "POST",
+    data: $('#customer_form').serialize(),
+    success: function(data) {
+      window.alert('success');
+    },
+    error: function () {
+        window.alert('failed');
+    }
+});
+});
+});
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTsSeQGLBSVcavJmuPzArVLuGt7MGXaSw&signed_in=true&callback=initMap"
+        async defer></script>
+
+{% endblock %}

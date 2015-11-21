@@ -1,0 +1,189 @@
+{% extends "bootstrap.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags%}
+
+{% block head %}
+<html ng-app="orderApp">
+<head>
+<!-- angular.min.js -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+<!-- js.cookie.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.4/js.cookie.js"></script>
+  
+<!--   ui-bootstrap.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap.js"></script>
+
+  <script>
+
+  	var orderApp = angular.module('orderApp',['ui.bootstrap']);
+  		orderApp.controller('CustomerListCtrl',function($scope, $http){
+  		$http.get('/customers/?format=json').success(function(data){
+  				$scope.customers = data;
+        });
+      $scope.select_id = "nothing";
+      $scope.select_name = "Please select";
+
+      $scope.selectcustomer = function(customer_id, customer_name){
+        $scope.select_id = customer_id;
+        $scope.select_name = customer_name;
+      };
+
+    });
+      orderApp.controller('DatepickerDemoCtrl', function ($scope) {
+  $scope.today = function() {
+    $scope.dt = new Date();
+  };
+  $scope.today();
+
+
+  $scope.toggleMin = function() {
+    $scope.minDate = $scope.minDate ? null : new Date();
+  };
+  $scope.toggleMin();
+  $scope.maxDate = new Date(2020, 5, 22);
+
+  $scope.open = function($event) {
+    $scope.status.opened = true;
+  };
+
+  $scope.dateOptions = {
+    formatYear: 'yy',
+    startingDay: 1
+  };
+
+  $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
+  $scope.format = $scope.formats[0];
+
+  $scope.status = {
+    opened: false
+  };
+
+  $scope.getDayClass = function(date, mode) {
+    if (mode === 'day') {
+      var dayToCheck = new Date(date).setHours(0,0,0,0);
+
+      for (var i=0;i<$scope.events.length;i++){
+        var currentDay = new Date($scope.events[i].date).setHours(0,0,0,0);
+
+        if (dayToCheck === currentDay) {
+          return $scope.events[i].status;
+        }
+      }
+    }
+
+    return '';
+  };
+});
+
+</script>
+
+
+</head>
+{% endblock %}
+
+{% block content %}
+<body ng-controller="CustomerListCtrl">
+
+{% verbatim %}
+
+<h1>{{select}}</h1>
+	Search: <input ng-model="query" type="text"/>
+  <table>
+  	<tr>
+      <th>URL</th>
+      <th>ID</th>
+  		<th>Name</th>
+  		<th>StreetNumber</th>
+  		<th>StreetName</th>
+  	</tr>
+  	<tr ng-repeat="customer in customers | filter:query">
+        <td><a ng-click="selectcustomer(customer.id, customer.name)">{{customer.id}}</a></td>
+  		  <td><a ng-click="selectcustomer(customer.id, customer.name)">{{customer.name}}</a></td>
+      	<td>{{customer.streetnumber}}</td>
+      	<td>{{customer.streetname}}</td>
+        <td>{{customer.url}}</a></td>
+  	</tr>
+  </table>
+
+<style>
+  .full button span {
+    background-color: limegreen;
+    border-radius: 32px;
+    color: black;
+  }
+  .partially button span {
+    background-color: orange;
+    border-radius: 32px;
+    color: black;
+  }
+</style>
+<div ng-controller="DatepickerDemoCtrl">
+    <div class="row">
+        <div class="col-md-6">
+            <p class="input-group"> Date:
+              <input type="date" class="form-control" uib-datepicker-popup="yyyy-MM-dd" ng-model="dt" is-open="status.opened" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+              <span class="input-group-btn">
+              </span>
+            </p>
+        </div>
+    </div>
+    <p id = "date_good_format" class="{{dt|date : 'yyyy-MM-dd'}}"></p>
+</div>
+<div>
+  <p>Quantity:</p>
+  <input type="text" id="order_quantity"/>
+</div>
+<div>
+  <p>Time Window Start1:</p>
+  <input type="text" id="timewindows1"/>
+</div>
+<div>
+  <p>Time Window End1:</p>
+  <input type="text" id="timewindowe1"/>
+</div>
+<div>
+  <p>Time Window Start2:</p>
+  <input type="text" id="timewindows2"/>
+</div>
+<div>
+  <p>Time Window End2:</p>
+  <input type="text" id="timewindowe2"/>
+</div>
+
+<button id = "submit_order" class = "{{select_id}}">Place Order for {{select_name}}</button>
+
+
+{% endverbatim %}
+
+<script type="text/javascript">
+$('#submit_order').on('click', function(){
+    var csrftoken = Cookies.get('csrftoken');
+
+    var manual = {
+        "csrfmiddlewaretoken" : csrftoken,
+        "customer" : $("#submit_order").attr("class"),
+        "date" : $("#date_good_format").attr("class"),
+        "quantity" : $("#order_quantity").val(),
+        "timewindows1" : $("#timewindows1").val(),
+        "timewindowe1" : $("#timewindowe1").val(),
+        "timewindows2" : $("#timewindows2").val(),
+        "timewindowe2" : $("#timewindowe2").val(),
+    };
+  $.ajax({
+    url: "/orders/",
+    headers:{ "X-CSRFToken" : csrftoken},
+    type: "POST",
+    data: manual,
+    success: function(data) {
+        window.alert('success');
+    },
+    error: function () {
+        window.alert('failed');
+    }
+});
+});
+</script>
+</body>
+
+</html>
+{% endblock %}

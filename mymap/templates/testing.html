@@ -1,0 +1,103 @@
+{% load staticfiles %}
+{% load crispy_forms_tags%}
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.4/js.cookie.js"></script>
+
+
+<form action="" method = "post">
+    {{ form }}
+    <input type="submit" value="OK">
+</form>
+
+<h2 id = 'h2'>Submit customer!</h2>
+<h2 id = 'h4'>Submit order!</h2>
+<input id = 'h3'>Delete This Customer</input>
+<button id = 'h3button'>Submit the delete</button>
+
+<form id = 'customerform' action="/customers/" method = "post">
+    {% csrf_token %}
+    {{form1 | crispy}}
+    <div class="buttonHolder">
+    <input type="submit" name="submit" value="Submit" class="submit submitButton" id="submit-id-submit" />
+</div>
+</form>
+
+
+<form id = 'orderform'>
+    {% csrf_token %}
+    {{form2 | crispy}}
+</form>
+
+<script>
+$(document).ready(function(){
+$('#h2').on('click', function(){
+    var show = $('#customerform').serialize();
+    console.log($('#customerform').serialize());
+    var csrftoken = Cookies.get('csrftoken');
+  $.ajax({
+    url: "/customers/",
+    headers:{ "X-CSRFToken" : csrftoken},
+    type: "POST",
+    data: $('#customerform').serialize(),
+    success: function(data) {
+        console.log(data);
+        window.alert('success');
+    },
+    error: function () {
+        window.alert('failed');
+    }
+});
+});
+
+$('#h4').on('click', function(){
+    var csrftoken = Cookies.get('csrftoken');
+    var manual = {
+        "csrfmiddlewaretoken" : csrftoken,
+        "customer" : 8,
+        "date" : "2015-8-30",
+        "quantity" : 19,
+        "timewindows" : 13,
+        "timewindowe" : 99,
+    };
+  $.ajax({
+    url: "/orders/",
+    headers:{ "X-CSRFToken" : csrftoken},
+    type: "POST",
+    data: $('#orderform').serialize(),
+    success: function(data) {
+        console.log($('#orderform').serialize());
+        window.alert('success');
+    },
+    error: function () {
+        window.alert('failed');
+    }
+});
+});
+
+$('#h3button').on('click', function(){
+    var csrftoken = Cookies.get('csrftoken');
+    var target = $('#h3').val();
+  $.ajax({
+    url: "/customers/" + target + "/",
+    headers:{ "X-CSRFToken" : csrftoken},
+    type: "DELETE",
+    success: function() {
+        window.alert('success');
+    },
+    error: function () {
+        window.alert('failed');
+    }
+});
+});
+});
+
+</script>
+
+</body>
+</html>

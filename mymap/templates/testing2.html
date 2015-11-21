@@ -1,0 +1,138 @@
+{% extends "bootstrap.html" %}
+
+{% block head %}
+{% endblock %}
+
+
+{% block content %}
+<h1 id="title1">HELLO WORLD</h1>
+<h1 id="title2">HELLO WORLD1</h1>
+<h1 id="title3">HELLO WORLD3</h1>
+
+<div class= "container">
+	<div class = "jumbotron">
+			<button class = "btn" id="btn1">#btn1</button>
+			<button class = "btn" id="btn2">#btn2</button>
+			<button class = "btn" id="btn3">#btn3</button>
+	</div>
+</div>
+<script>
+	$(document).ready(function(){
+// vedio 1
+		$("#title1").hide(300).show(1000).css({color:'blue',fontWeight:'bold'});
+		$("#title2").html('JQuery coming');
+// vedio 2
+		$("#title3").on('click', function(){
+			alert("Clicked for what!")
+		})
+
+		$("#title2").on('mouseover', function(){
+			$("#title2").html("Don't block my sunshine!");
+		})
+
+		$("#title2").on('click', function(){
+			$("#title2").fadeToggle(1000);
+		})
+// vedio 3
+		$('.btn').on('click',function(){
+			var panelId = $(this).attr('id');
+			$('#'+ panelId).toggle();
+			alert(panelId);
+		})
+// vedio 4 JQuery is actually a DOM traversal libary
+		$('li').eq(0);//the first li element on page
+		$('ul:first').children();
+		$('li:first').siblings();
+		$('li:first').parent();
+		$('li:first').parent().parent().prev();
+		$('li').on('click'function(){
+			$(this).next().remove();
+			$(this).siblings().addClass('special');
+			//in this, find all li, filter by class = special and remove it
+			$(this).find('li').filter('.special').remove();
+
+		})
+		if($(this)).is('sepcial'){
+			alert('special');
+		};
+		if($(this)).not('sepcial'){
+			alert('special');
+		};
+
+		if($(this).parent().is('.sublist')){
+			$(this).hide();
+		}
+//vedio 5
+		$(function(){
+
+			$('.tab-panels .tabs li').on('click',function(){
+				var $panel = $(this).closest('.tab-panels');
+				$panel.find('.tabs li .active').removeClass(‘active’);
+				$(this).addClass('active');
+				//figure out which panel to show
+				var panelToShow = $(this).attr('rel');
+
+				//hide the current panel
+				//callBack function, wait until the previous is finished
+				$panel.find('.panel .active').slideUp(300,function showNextPanel);
+
+				function showNextPanel(){
+					$(this).removeClass('active');
+
+					$('#'+ panelToShow).slideDown(300,function(){
+						$(this).addClass('active');
+					});
+				};
+
+				//show new panel
+		});
+
+	});
+
+//vedio 6
+		setInterval(function(){
+			console.log(new Date());
+		},1000);
+		$(selector).animate(obj, time, callback)
+
+		$(function(){
+			//configuration
+			var width = 720;
+			var animationSpeed = 1000;
+			var pause = 3000;
+			var currentSlide = 1;
+
+			// cache DOM (jQuery selector)
+			var $slider = $('#slider');
+			var $slideContainer = $slider.find('.slides');
+			var $slide = $slideContainer.find('.slide');
+
+			function startSlider(){
+				setInterval(funciton(){
+					$slider.animate({'margin-left' : '-='+width},animationSpeed,function(){
+						currentSlide++;
+						if(currentSlide === $slides.length){
+							currentSlide = 1;
+							$slideContainer.css('margin-left',0);
+						}
+					});
+				},pause);
+			}
+
+
+			$slider.on('mouseenter',pauseSlider).on('mouseleave',startSlider);
+			//setInterval
+			//animate margin-left
+			//if it's last slide, go to position 1;
+
+			//listen for mouseenter and pause
+			//resume on mouseleave
+		})
+
+
+
+
+
+
+</script>
+{% endblock %}

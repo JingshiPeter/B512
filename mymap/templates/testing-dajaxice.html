@@ -1,0 +1,26 @@
+{% extends "bootstrap.html" %}
+{% load dajaxice_templatetags %}
+
+<!DOCTYPE html>
+<html>
+{% block head %}
+
+{% dajaxice_js_import %}
+
+{% endblock %}
+<body>
+{% block content %}
+<button id = 'seemap' class="btn btn-default" onclick="Dajaxice.mymap.sayhello(my_js_callback)">Location On Map</button>
+<h1 id = 'thetitle'>TITLE</h1>
+
+<script type="text/javascript">
+	function my_js_callback(data){
+		alert(data.message);
+		document.getElementById('thetitle').innerHTML = data.message;
+	}
+</script>
+<h1 id = 'thetitle2'>TITLE2</h1>
+{% endblock %}
+
+</body>
+</html>

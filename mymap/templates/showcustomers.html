@@ -1,0 +1,75 @@
+{% extends "bootstrap.html" %}
+{% load staticfiles %}
+
+<head>
+{% block title %}
+    <title>Show Customer</title>
+{% endblock %}
+
+{% block head %}
+<script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+<link href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" rel="stylesheet">
+{% endblock %}
+</head>
+
+<body>
+{% block content %}
+<h1>Total number of customer in record : {{length}}</h1>
+<table id="record_table" class="display" cellspacing="0" width="100%">
+<thead>
+            <tr>
+                <th>Name</th>
+                <th>StreetNumber</th>
+                <th>Street</th>
+                <th>City</th>
+                <th>State</th>
+                <th>ZipCode</th>
+            </tr>
+        </thead>
+
+ 
+<tbody>
+{% for customer in customer_list %}
+	<tr>
+		<td>{{customer.name}}</td>
+		<td>{{customer.streetnumber}}</td>
+		<td>{{customer.streetname}}</td>
+		<td>{{customer.city}}</td>
+		<td>{{customer.state}}</td>
+		<td>{{customer.zipcode}}</td>
+	</tr>
+{% endfor %}
+</tbody>
+
+</table>
+<button id = "delete_button">Delete</button>
+<h4 id = "deletedname">nothing</h4>
+<script>
+// var dataSet = [];
+
+$(document).ready(function() {
+    $('#record_table').DataTable();
+
+    var table = $('#record_table').DataTable();
+
+    $('#record_table tbody').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+        }
+        else {
+            table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    } );
+ 
+    $('#delete_button').click( function () {
+		$('#deletedname').html() = table.row('.selected')[1];
+        table.row('.selected').remove().draw( false );
+
+    } );
+} );
+
+</script>
+
+{% endblock %}
+</body>

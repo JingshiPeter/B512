@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% extends "bootstrap.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags%}
+
+{% block head %}
+<html ng-app="nameApp">
+<head>
+    <title>Hello World, AngularJS - ViralPatel.net</title>
+    <script type="text/javascript"
+        src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+    <script>
+    var nameApp = angular.module('nameApp',[]);
+    nameApp.controller('NameCtrl',function($scope){
+		$scope.firstName = 'Peter';
+    	$scope.lastName = 'Sun';
+    	$scope.changefirstName = function(newtext){
+    		$scope.firstName = newtext;
+    	}
+    	$scope.changeCustomer = function(selected){
+    		$('#id_customer').val() = "2";
+    	}
+    });
+    </script>
+</head>
+{% endblock %}
+{% block content %}
+ {% verbatim %}
+
+<body ng-controller = "NameCtrl">
+	<input ng-model="firstName" type="text" />
+	<input ng-model="someother" type="text" />
+    Hello : {{ firstName }} {{lastName}}
+    SomeOther : {{someother}}
+    <button ng-click="changeCustomer(someother)">Magic Change Name!</button>
+ {% endverbatim %}
+<form id = "order_form">
+	    {% csrf_token %}
+	    {{ form2 | crispy }}
+
+</form>
+
+
+</body>
+{% endblock %}
+</html>
