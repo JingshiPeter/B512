@@ -13,5 +13,3 @@ django-dajaxice==0.7
 djangorestframework==3.3.0
 optional-django==0.1.0
 nodejs==0.1.1
-numpy==1.9.2
-scipy==0.15.1

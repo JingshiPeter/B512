@@ -62,7 +62,7 @@ def test_addresses():
 
 add_list = ["407 Radam Ln","5701 West Slaughter Lane","1120 South Lamar Blvd.","2700 West Anderson Lane",
 "6507 Burnet Road","3003 S. Lamar Blvd Ste F100","96 Rainey Street","321 W. Ben White Blvd",
-"9070 Research Blvd, STE 101","10817 FM 2222","317 E. 6th","1900 South First","11680A Research Road",
+"9070 Research Blvd","10817 FM 2222","317 E. 6th","1900 South First","11680A Research Road",
 "909 W Mary St","201 Brazos","4477 S. Lamar","609 Davis St","5204 FM 2222","3116 S Congress","8300 N FM 620","1109 South Lamar Blvd",
 "1400 South Congress Avenue, STE.190A","2438 West Anderson Lane","69 Rainey Street",
 "401 West 2nd Street","5425 Burnet Rd","520 w. 6th","6301 Parmer Ln","2421 Webberville Rd","13301 N. US Hwy. 183 Bldg A","507 Calles Street","1509 S. Lamar Blvd, Ste 600",
