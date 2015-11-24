@@ -19,7 +19,7 @@ from mymap.permissions import IsOwnerOrReadOnly
 from mymap.serializers import CustomerSerializer, UserSerializer, OrderSerializer
 
 import json
-import simplejson
+# import simplejson
 
 class CustomerViewSet(viewsets.ModelViewSet):
 	queryset = Customer.objects.all()
