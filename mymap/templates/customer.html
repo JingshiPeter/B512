@@ -20,6 +20,8 @@
 	</form>
   <button id = "ajax_customerform">Submit through Ajax</button>
 	<button id = 'seemap' class="btn btn-default">customer On Map</button>
+  <input id = "full_address" type="text"> </input>
+  <button id = 'seemap2' class="btn btn-default">Rapid On Map</button>
   </div>
   <div id = 'map' class="col-md-8" style = 'height:600px'>
   </div>
@@ -45,6 +47,13 @@ function initMap() {
 	var address = streetnumber.concat(streetname,city,state);
     geocodeAddress(address,geocoder, map);
   });
+
+  document.getElementById('seemap2').addEventListener('click', function() {
+  var street = document.getElementById('full_address').value;
+  var city = "AustinTX";
+  var address = street.concat(city);
+    geocodeAddress(address,geocoder, map);
+  });
 }
 
 function geocodeAddress(address,geocoder, resultsMap) {
@@ -53,10 +62,10 @@ function geocodeAddress(address,geocoder, resultsMap) {
       document.getElementById('ajax_customerform').disabled = false;
       $('#id_streetnumber').val(results[0].address_components[0].short_name);
       $('#id_streetname').val(results[0].address_components[1].short_name);
-      if(results[0].address_components.length == 9){
-        $('#id_zipcode').val(results[0].address_components[7].short_name);
-      }else{
-        $('#id_zipcode').val(results[0].address_components[6].short_name);
+      var addresses = results[0].address_components;
+      for (var i = addresses.length - 1; i >= 0; i--) {
+        if (addresses[i].types[0]=="postal_code") 
+          {$('#id_zipcode').val(results[0].address_components[i].short_name)};
       }
       window.alert(results[0].formatted_address);
       document.getElementById('ajax_customerform')

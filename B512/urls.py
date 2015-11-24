@@ -35,6 +35,7 @@ urlpatterns = [
 	url(r'^$', mymap.views.customer, name='customer'),
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^route/', mymap.views.showroutes,name='route'),
     url(r'^calc/', mymap.views.calc,name='calc'),
 	url(r'^order/', mymap.views.order,name='order'),
 	url(r'^savecustomerform/', mymap.views.savecustomerform,name='savecustomerform'), #this is a ajax request

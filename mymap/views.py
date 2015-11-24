@@ -6,7 +6,7 @@ from crispy_forms.utils import render_crispy_form
 from jsonview.decorators import json_view
 from django.core import serializers
 
-# import mymap.generate_edges
+from mymap.generate_edges import generate_edges
 #RESTful API
 from django.contrib.auth.models import User
 from rest_framework import permissions
@@ -17,6 +17,9 @@ from rest_framework.response import Response
 from mymap.models import Customer, Order
 from mymap.permissions import IsOwnerOrReadOnly
 from mymap.serializers import CustomerSerializer, UserSerializer, OrderSerializer
+
+import json
+import simplejson
 
 class CustomerViewSet(viewsets.ModelViewSet):
 	queryset = Customer.objects.all()
@@ -52,7 +55,7 @@ def calc(request):
 		address += str(order.customer.streetname)
 		address += " Austin TX"
 		addresses.append(address)
-	# addresses = mymap.generate_edges.test_addresses()
+	addresses = generate_edges.test_addresses()
 	return render(request, "calc.html",{'addresses' : addresses})
 
 def testing(request):
@@ -113,13 +116,25 @@ def showcustomers(request):
 
 	# Customer_list = serializers.serialize("json", customers.objects.all())
 	customer_list = Customer.objects.all()
-
+	routes = [["407 Radam Ln Austin TX","916 E 32nd St Austin TX","5701 W Slaughter Ln Austin TX","3003 S Lamar Blvd Austin TX","96 Rainey St Austin TX","10817 Ranch Rd 2222 Austin TX","1120 S Lamar Blvd Austin TX","2700 W Anderson Ln Austin TX","6507 Burnet Rd Austin TX","321 W Ben White Blvd Austin TX","407 Radam Ln Austin TX"],
+	["407 Radam Ln Austin TX","321 W Ben White Blvd Austin TX","916 E 32nd St Austin TX","5701 W Slaughter Ln Austin TX","3003 S Lamar Blvd Austin TX","96 Rainey St Austin TX","10817 Ranch Rd 2222 Austin TX","1120 S Lamar Blvd Austin TX","2700 W Anderson Ln Austin TX","6507 Burnet Rd Austin TX","407 Radam Ln Austin TX"]]
+	# routes = ["1","2","3"]
 	context = {
+
 		"customer_list" : customer_list,
 		"length" : len(customer_list),
+		"routes" : routes
 	}
 	return render(request, "showcustomers.html",context)
 
+def showroutes(request):
+	with open('routes.json', 'r') as fp:
+		routes = json.load(fp)
+ 	routes = json.dumps(routes)
+	context = {
+		"routes" : routes,
+	}
+	return render(request,"showroutes.html", context)
 # def db(request):
 
 #     greeting = Greetings()
@@ -132,16 +147,3 @@ def showcustomers(request):
 def customer(request):
 	form = CustomerForm()
 	return render(request, 'customer.html', {'form' : form})
-
-# @json_view
-# def save_Customer_form(request):
-#     form = ExampleForm(request.POST or None)
-#     if form.is_valid():
-#         # You could actually save through AJAX and return a success code here
-#         form.save()
-#         return {'success': True}
-
-#     # RequestContext ensures CSRF token is placed in newly rendered form_html
-#     request_context = RequestContext(request)
-#     form_html = render_crispy_form(form, context=request_context)
-#     return {'success': False, 'form_html': form_html}

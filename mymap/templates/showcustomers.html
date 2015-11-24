@@ -1,19 +1,45 @@
-{% extends "bootstrap.html" %}
 {% load staticfiles %}
+<html ng-app="showCustomers">
 
 <head>
-{% block title %}
     <title>Show Customer</title>
-{% endblock %}
+  <!-- jquery.js -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-{% block head %}
 <script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+
 <link href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" rel="stylesheet">
-{% endblock %}
+<!-- angular.min.js -->
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+<!-- js.cookie.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.4/js.cookie.js"></script>
+  
+<!--   ui-bootstrap.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap.js"></script>
+
+  <script>
+  var addresses = [];
+  var showCustomers = angular.module('showCustomers',[]);
+  showCustomers.controller('CustomerDataCtrl',function($scope,$http){
+    $http.get('/customers/?format=json').success(function(data){
+      $scope.customers = data;
+      $scope.addresses = [];
+      for(var idx in $scope.customers){
+        var address = "";
+        address=address.concat($scope.customers[idx].streetnumber, " ");
+        address=address.concat($scope.customers[idx].streetname);
+        address=address.concat(" Austin TX");
+
+        $scope.addresses.push(address);
+      }
+      addresses = $scope.addresses;
+    });
+  })
+  </script>
+
 </head>
 
 <body>
-{% block content %}
 <h1>Total number of customer in record : {{length}}</h1>
 <table id="record_table" class="display" cellspacing="0" width="100%">
 <thead>
@@ -44,6 +70,20 @@
 </table>
 <button id = "delete_button">Delete</button>
 <h4 id = "deletedname">nothing</h4>
+
+<div id="map" style = 'height:800px'></div>
+<button id="submit">Submit</button>
+<button id="show_all_customers">Show Customers</button>
+<button id="show_routes">Show Routes</button>
+<div id="directions-panel"></div>
+
+{% for route in routes %}
+<h2>{{route}}<h2>
+{% endfor %}
+
+{% verbatim %}
+<h2 ng-controller="CustomerDataCtrl" id = "addresses">{{addresses}}</h2>
+{% endverbatim %}
 <script>
 // var dataSet = [];
 
@@ -71,5 +111,124 @@ $(document).ready(function() {
 
 </script>
 
-{% endblock %}
+<script>
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 12,
+    center: {lat: 30.3223, lng: -97.7167}
+  });
+  var geocoder = new google.maps.Geocoder();
+  var directionsService = new google.maps.DirectionsService;
+  var directionsDisplay = new google.maps.DirectionsRenderer;
+  directionsDisplay.setMap(map);
+
+  function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
+  document.getElementById('show_all_customers').addEventListener('click', function() {
+    for(var idx in addresses){
+      console.log(addresses[idx]);
+      markAddress((addresses[idx]+" Austin TX"), geocoder, map);
+      sleep(1000);
+    }
+  });
+  var cummu_idx = 0;
+  var addresses = ["407 Radam Ln","5701 W Slaughter Ln","1120 S Lamar Blvd","2700 W Anderson Ln",
+                "6507 Burnet Road","3003 S Lamar Blvd","96 Rainey Street","321 W Ben White Blvd",
+                "9070 Research Blvd","10817 Ranch Rd 2222","317 E 6th St","1900 S 1st St","11680 Research Blvd",
+                "909 W Mary St","201 Brazos St","4477 S Lamar Blvd","609 Davis St","5204 Ranch Rd 2222","3116 S Congress","8300 N FM 620","1109 South Lamar Blvd",
+                "1400 South Congress Avenue","2438 W Anderson Ln","69 Rainey Street",
+                "401 W 2nd St","5425 Burnet Rd","520 W 6th St","6301 Parmer Ln","2421 Webberville Rd",
+                "13301 US Highway 183","507 Calles St","1509 S Lamar Blvd",
+                "3601 South Congress Avenue","2900 Duval St","3508 S Lamar Blvd","12221 Riata Trace Pkwy",
+                "704 W St. Johns Ave","9012 Research Blvd","9010 Research Blvd","4960 US Route 290",
+                "801 Red River St","12164 N Mopac Expy","11601 Domain Dr","4024 S Lamar Blvd",
+                "1000 E 41st St","7211 Burnet Rd","900 Austin Highlands Blvd"];
+
+  document.getElementById('show_routes').addEventListener('click', function() {
+    var seg_addresses = []
+    for (var i = cummu_idx; i < addresses.length; i++) {
+      if(seg_addresses.length < 5){
+        seg_addresses.push((addresses[i]+" Austin TX"));
+        cummu_idx++;
+      }else{
+        break;
+      }
+    };
+    cummu_idx--;
+    calculateAndDisplayRoute(directionsService, directionsDisplay, seg_addresses);
+  });
+
+
+}
+
+function markAddress(address, geocoder, resultsMap) {
+  geocoder.geocode({'address': address}, function(results, status) {
+    if (status === google.maps.GeocoderStatus.OK) {
+      console.log(results[0]);
+      resultsMap.setCenter(results[0].geometry.location);
+      var marker = new google.maps.Marker({
+        map: resultsMap,
+        position: results[0].geometry.location,
+      });
+
+      var infowindow = new google.maps.InfoWindow({
+        content: results[0].formatted_address
+      });
+
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+}
+
+function calculateAndDisplayRoute(directionsService, directionsDisplay, addresses) {
+  var waypts = [];
+  for (var i = 1; i < addresses.length-1; i++) {
+      waypts.push({
+        location: addresses[i],
+        stopover: true
+      });
+  }
+
+  directionsService.route({
+    origin: addresses[0],
+    destination: addresses[addresses.length-1],
+    waypoints: waypts,
+    optimizeWaypoints: true,
+    travelMode: google.maps.TravelMode.DRIVING
+  }, function(response, status) {
+    if (status === google.maps.DirectionsStatus.OK) {
+      directionsDisplay.setDirections(response);
+      var route = response.routes[0];
+      var summaryPanel = document.getElementById('directions-panel');
+      summaryPanel.innerHTML = '';
+      // For each route, display summary information.
+      for (var i = 0; i < route.legs.length; i++) {
+        var routeSegment = i + 1;
+        summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment +
+            '</b><br>';
+        summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+        summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+        summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+      }
+    } else {
+      window.alert('Directions request failed due to ' + status);
+    }
+  });
+
+}
+
+</script>
+
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkog60bGpNyK5e9Ub87yJfsx_BLJPvFVE&signed_in=true&callback=initMap"
+        async defer></script>
 </body>
+</html>

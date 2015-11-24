@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html ng-app="showRoutes">
+<head>
+	<title></title>
+
+<!-- jquery.js -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<!-- angular.min.js -->
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+<!-- js.cookie.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.4/js.cookie.js"></script>
+  <!-- googlemaps -->
+<script src='//maps.googleapis.com/maps/api/js'></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+
+  <script>
+var routes = JSON.parse('{{ routes | escapejs }}');
+var len = 0;
+for(var key in routes){
+	len++;
+}
+var showRoutes = angular.module('showRoutes',[]);
+showRoutes.controller('MapCtrl', function ($scope, $window) {
+    $window.map = new google.maps.Map(document.getElementById('map'), {
+        center: {
+            lat: 30.3223,
+            lng: -97.7167
+        },
+        zoom: 12
+    });
+    $scope.geocoder = new google.maps.Geocoder();
+	$scope.directionsService = new google.maps.DirectionsService;
+	$scope.directionsDisplay = new google.maps.DirectionsRenderer;
+	$scope.directionsDisplay.setMap($window.map);
+	$scope.vehicle_no = [];
+	$scope.seg_addresses = [];
+	$scope.cummu_idx = 0;
+	$scope.current_addresses_len = 0;
+	$scope.current_vehicle = 0;
+	$scope.times = {"location":"time"};
+	for (var key in routes) {
+		$scope.vehicle_no.push(key);
+	};
+  var addresses = [];
+  $scope.calculateAndDisplayRoute = function(directionsService, directionsDisplay, addresses) {
+  if ($scope.cummu_idx == $scope.current_addresses_len-1){
+  	$scope.cummu_idx = 0;
+  }
+  var waypts = [];
+  for (var i = 1; i < $scope.seg_addresses.length-1; i++) {
+      waypts.push({
+        location: $scope.seg_addresses[i],
+        stopover: true
+      });
+  }
+  console.log(waypts);
+  $scope.directionsService.route({
+    origin: $scope.seg_addresses[0],
+    destination: $scope.seg_addresses[$scope.seg_addresses.length-1],
+    waypoints: waypts,
+    optimizeWaypoints: false,
+    travelMode: google.maps.TravelMode.DRIVING
+  }, function(response, status) {
+    if (status === google.maps.DirectionsStatus.OK) {
+    	console.log(response);
+      $scope.directionsDisplay.setDirections(response);
+  }else{
+  	console.log("Google request didn't go through");
+  }
+});
+}
+  $scope.showRoute = function(i){
+  	if(i != $scope.current_vehicle){
+  		$scope.cummu_idx=0;
+  		$scope.current_vehicle=i;
+  	}
+  	$scope.addresses = routes[i]["route"];
+  	var tmp = routes[i]["times"];
+  	var tmp_list = []
+  	for (key in tmp) {
+  		var tmp_ele = {};
+  		tmp_ele['address']=key;
+  		tmp_ele['time'] = tmp[key];
+  		tmp_list.push(tmp_ele);
+  	};
+  	$scope.times = tmp_list;
+  	$scope.current_addresses_len = $scope.addresses.length;
+  	console.log($scope.addresses);
+  	$scope.seg_addresses = [];
+    for (var i = $scope.cummu_idx; i < $scope.addresses.length; i++) {
+      if($scope.seg_addresses.length < 10){
+        $scope.seg_addresses.push(($scope.addresses[i]+" Austin TX"));
+        $scope.cummu_idx++;
+      }else{
+        break;
+      }
+    };
+    $scope.cummu_idx--;
+    $scope.calculateAndDisplayRoute($scope.directionsService, $scope.directionsDisplay, $scope.seg_addresses);
+  }
+});
+  </script>
+
+</head>
+{% verbatim %}
+<body ng-controller="MapCtrl">
+<h1>Route For Vehicle No.{{current_vehicle}}</h1>
+
+<script>
+
+</script>
+<div id="map" ng-app="showRoutes"style = 'height:900px'></div>
+<div class="btn-group btn-group-justified" role="group" aria-label="...">
+<div data-ng-repeat="i in vehicle_no">
+	<div class="btn-group" role="group">
+	<button type="button" class="btn btn-default" ng-click="showRoute(i)">Show Route for Vehicle {{i}}</button>
+	</div>
+</div>
+<div class="panel-heading">Customer Location Arrival Time</div>
+
+<table class="table">
+    <tr>
+        <th>Customer Location</th>
+        <th>Arrival Time</th>
+    </tr>
+    <tr ng-repeat="pair in times | orderBy: 'time'">
+        <td>{{pair['address']}}</td>
+        <td>{{pair['time']}}</td>
+    </tr>
+</table>
+</div>
+</div>
+</body>
+{% endverbatim %}
+</html>
