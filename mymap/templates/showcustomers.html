@@ -71,18 +71,18 @@
 <button id = "delete_button">Delete</button>
 <h4 id = "deletedname">nothing</h4>
 
-<div id="map" style = 'height:800px'></div>
+<div id="map" style = 'height:600px'></div>
 <button id="submit">Submit</button>
 <button id="show_all_customers">Show Customers</button>
 <button id="show_routes">Show Routes</button>
 <div id="directions-panel"></div>
 
 {% for route in routes %}
-<h2>{{route}}<h2>
+<!-- <h2>{{route}}<h2> -->
 {% endfor %}
 
 {% verbatim %}
-<h2 ng-controller="CustomerDataCtrl" id = "addresses">{{addresses}}</h2>
+<!-- <h2 ng-controller="CustomerDataCtrl" id = "addresses">{{addresses}}</h2> -->
 {% endverbatim %}
 <script>
 // var dataSet = [];

@@ -128,7 +128,7 @@ def showcustomers(request):
 	return render(request, "showcustomers.html",context)
 
 def showroutes(request):
-	with open('routes.json', 'r') as fp:
+	with open('routes_result_f7 (1).json', 'r') as fp:
 		routes = json.load(fp)
  	routes = json.dumps(routes)
 	context = {
