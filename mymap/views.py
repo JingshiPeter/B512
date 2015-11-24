@@ -6,7 +6,7 @@ from crispy_forms.utils import render_crispy_form
 from jsonview.decorators import json_view
 from django.core import serializers
 
-from mymap.generate_edges import generate_edges
+# from mymap.generate_edges import generate_edges
 #RESTful API
 from django.contrib.auth.models import User
 from rest_framework import permissions
@@ -55,7 +55,7 @@ def calc(request):
 		address += str(order.customer.streetname)
 		address += " Austin TX"
 		addresses.append(address)
-	addresses = generate_edges.test_addresses()
+	# addresses = generate_edges.test_addresses()
 	return render(request, "calc.html",{'addresses' : addresses})
 
 def testing(request):
