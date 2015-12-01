@@ -37,18 +37,21 @@ showRoutes.controller('MapCtrl', function ($scope, $window) {
         zoom: 12
     });
     $scope.geocoder = new google.maps.Geocoder();
-	$scope.directionsService = new google.maps.DirectionsService;
-	$scope.directionsDisplay = new google.maps.DirectionsRenderer;
-	$scope.directionsDisplay.setMap($window.map);
-	$scope.vehicle_no = [];
-	$scope.seg_addresses = [];
-	$scope.cummu_idx = 0;
-	$scope.current_addresses_len = 0;
-	$scope.current_vehicle = 0;
-	$scope.times = {"location":"time"};
-	for (var key in routes) {
-		$scope.vehicle_no.push(key);
-	};
+  	$scope.directionsService = new google.maps.DirectionsService;
+  	$scope.directionsDisplay = new google.maps.DirectionsRenderer;
+  	$scope.directionsDisplay.setMap($window.map);
+  	$scope.vehicle_no = [];
+  	$scope.seg_addresses = [];
+  	$scope.cummu_idx = 0;
+  	$scope.current_addresses_len = 0;
+  	$scope.current_vehicle = 0;
+  	$scope.times = {"location":"time"};
+    $scope.Math = window.Math;
+    $scope.markers = {};
+    $scope.markers_cache_flag = {};
+    for (var key in routes) {
+    $scope.vehicle_no.push(key);
+  };
   var addresses = [];
   $scope.calculateAndDisplayRoute = function(directionsService, directionsDisplay, addresses) {
   if ($scope.cummu_idx == $scope.current_addresses_len-1){
@@ -89,6 +92,7 @@ showRoutes.controller('MapCtrl', function ($scope, $window) {
   		var tmp_ele = {};
   		tmp_ele['address']=key;
   		tmp_ele['time'] = tmp[key];
+      tmp_ele['departure_time'] = $scope.timeAddition(tmp[key],0.15);
   		tmp_list.push(tmp_ele);
   	};
   	$scope.times = tmp_list;
@@ -106,7 +110,84 @@ showRoutes.controller('MapCtrl', function ($scope, $window) {
     $scope.cummu_idx--;
     $scope.calculateAndDisplayRoute($scope.directionsService, $scope.directionsDisplay, $scope.seg_addresses);
   }
+  $scope.timeAddition = function(i, j){
+    var i_int = Math.floor(i);
+    var i_frac = i - i_int;
+    var j_int = Math.floor(j);
+    var j_frac = j - j_int;
+    var result_frac_sum = ((i_frac + j_frac)*100);
+    var result = i_int + j_int + Math.floor(result_frac_sum/60) + (result_frac_sum%60)/100;
+    return result;
+  }
+
+  $scope.sleep = function(milliseconds){
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+        break;
+      }
+    }
+  }
+
+  $scope.markAddress = function(address) {
+  $scope.sleep(1000);
+  $scope.geocoder.geocode({'address': address+" Austin TX"}, function(results, status) {
+    if (status === google.maps.GeocoderStatus.OK) {
+      console.log(results[0]);
+      $window.map.setCenter(results[0].geometry.location);
+      var marker = new google.maps.Marker({
+        map: $window.map,
+        position: results[0].geometry.location,
+      });
+
+      $scope.markers[$scope.current_vehicle].push(marker);
+
+      var infowindow = new google.maps.InfoWindow({
+        content: results[0].formatted_address
+      });
+
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+}
+  $scope.markAddresses = function(i){
+    $scope.current_vehicle = i;
+    $scope.addresses = routes[i]["route"];
+    $scope.markers[$scope.current_vehicle] = [];
+    for (var i = 0; i < $scope.addresses.length; i++) {
+      $scope.markAddress($scope.addresses[i]);
+    };
+    $scope.markers_cache_flag[$scope.current_vehicle] = true;
+  }
+
+  $scope.showCurrentMarkers = function(i){
+    $scope.clearMarkers();
+    $scope.current_vehicle = i;
+    $scope.showMarkers();
+  }
+
+  $scope.setMapOnAll = function(map){
+    for (var i = 0; i < $scope.markers[$scope.current_vehicle].length; i++) {
+      $scope.markers[$scope.current_vehicle][i].setMap(map);
+    };
+  }
+
+  $scope.clearMarkers = function(){
+    if($scope.markers_cache_flag[$scope.current_vehicle]){
+      $scope.setMapOnAll(null);
+    }
+  }
+
+  $scope.showMarkers = function(){
+    if($scope.markers_cache_flag[$scope.current_vehicle]){
+      $scope.setMapOnAll($window.map);
+    }else{
+      $scope.markAddresses($scope.current_vehicle);
+    }
+  }
 });
+
   </script>
 
 </head>
@@ -121,19 +202,24 @@ showRoutes.controller('MapCtrl', function ($scope, $window) {
 <div class="btn-group btn-group-justified" role="group" aria-label="...">
 <div data-ng-repeat="i in vehicle_no">
 	<div class="btn-group" role="group">
-	<button type="button" class="btn btn-default" ng-click="showRoute(i)">Show Route for Vehicle {{i}}</button>
+	<button type="button" class="btn btn-default" ng-click="showRoute(i)">Route for Vehicle {{i}}</button>
+  <button type="button" class="btn btn-default" ng-click="showCurrentMarkers(i)">Customer Locations for Vehicle {{i}}</button>
 	</div>
 </div>
-<div class="panel-heading">Customer Location Arrival Time</div>
+<div class="panel-heading">Schedule for Vehicle </div>
 
 <table class="table">
     <tr>
         <th>Customer Location</th>
         <th>Arrival Time</th>
+        <th>Departure Time</th>
+        
     </tr>
     <tr ng-repeat="pair in times | orderBy: 'time'">
         <td>{{pair['address']}}</td>
-        <td>{{pair['time']}}</td>
+        <td>{{pair['time']|number:2}}</td>
+        <td>{{pair['departure_time']|number:2}}</td>
+        
     </tr>
 </table>
 </div>
